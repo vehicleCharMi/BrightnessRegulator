@@ -1,10 +1,22 @@
 import tkinter as tk
 import subprocess
 
+MIN_BRIGHTNESS = 10
+
+def disable_auto_dim():
+    try:
+        subprocess.run(["gsettings", "set", "org.gnome.settings-daemon.plugins.power", "idle-dim", "false"])
+        subprocess.run(["gsettings", "set", "org.gnome.settings-daemon.plugins.power", "brightness-dim-battery", "false"])
+        subprocess.run(["gsettings", "set", "org.gnome.settings-daemon.plugins.power", "ambient-enabled", "false"])
+    except Exception as e:
+        print("Failed to disable auto dimming:", e)
+
 def set_brightness(value):
-    brightness = float(value) / 100
+    val = max(float(value), MIN_BRIGHTNESS)
+    brightness = val / 100
     subprocess.run(["xrandr", "--output", output_name, "--brightness", str(brightness)])
-    label.config(text=f"Brightness: {int(float(value))}%")
+    slider.set(val)
+    label.config(text=f"Brightness: {int(val)}%")
 
 def get_primary_output():
     result = subprocess.run(["xrandr"], capture_output=True, text=True)
@@ -22,30 +34,28 @@ if output_name is None:
     exit(1)
 
 def create_ui():
+    global slider, label
+
+    disable_auto_dim()
+
     root = tk.Tk()
     root.title("Brightness Controller")
-
-    # Убираем параметры прозрачности и безрамочности
     root.configure(bg="black")
 
-    # Центрирование окна
     screen_width = root.winfo_screenwidth()
     screen_height = root.winfo_screenheight()
-    window_width = 300
-    window_height = 120
+    window_width = 320
+    window_height = 160
     x = (screen_width - window_width) // 2
     y = (screen_height - window_height) // 2
     root.geometry(f"{window_width}x{window_height}+{x}+{y}")
 
-    # Ярлык яркости
-    global label
     label = tk.Label(root, text="Brightness: 100%", font=("Arial", 14), fg="white", bg="black")
     label.pack(pady=(15, 5))
 
-    # Слайдер
     slider = tk.Scale(
-        root, from_=10, to=100,
-        orient="horizontal", length=250,
+        root, from_=MIN_BRIGHTNESS, to=100,
+        orient="horizontal", length=280,
         command=set_brightness,
         showvalue=False,
         troughcolor="#444",
@@ -57,9 +67,7 @@ def create_ui():
     slider.set(100)
     slider.pack()
 
-    # Закрытие по Esc
     root.bind("<Escape>", lambda e: root.destroy())
-
     root.mainloop()
 
 if __name__ == "__main__":
