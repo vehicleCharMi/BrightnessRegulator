@@ -6,6 +6,6 @@ Linux Ubunta 24
 
 2.) install ("sudo apt install corectrl")
 
-3.) install python3 
+3.) sudo apt install python3
 
 4.).python3 RegulatorBright.py
