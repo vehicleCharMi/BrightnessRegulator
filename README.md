@@ -1,6 +1,6 @@
 # BrightnessRegulator
 
-1.) Download zip or 
+1.) Download zip or ("git clone "https://github.com/vehicleCharMi/BrightnessRegulator)
 
 2.) install ("sudo apt install corectrl")
 
